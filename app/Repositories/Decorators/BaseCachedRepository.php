@@ -44,7 +44,18 @@ class BaseCachedRepository implements BaseRepositoryInterface
      */
     protected function getCacheKey(string $method, array $args): string
     {
-        $args = array_map(fn ($arg) => is_object($arg) ? (method_exists($arg, 'toArray') ? $arg->toArray() : get_object_vars($arg)) : $arg, $args);
+        $args = array_map(function ($arg) {
+            if (is_object($arg)) {
+                if (method_exists($arg, 'toArray')) {
+                    return $arg->toArray();
+                } else {
+                    $vars = get_object_vars($arg);
+                    // If no public properties are available, use the object's hash.
+                    return !empty($vars) ? $vars : spl_object_hash($arg);
+                }
+            }
+            return $arg;
+        }, $args);
         $args = array_filter($args, fn ($arg) => ! is_null($arg) && $arg !== []);
         ksort($args);
 
