@@ -50,10 +50,12 @@ class BaseCachedRepository implements BaseRepositoryInterface
                     return $arg->toArray();
                 } else {
                     $vars = get_object_vars($arg);
+
                     // If no public properties are available, use the object's hash.
-                    return !empty($vars) ? $vars : spl_object_hash($arg);
+                    return ! empty($vars) ? $vars : spl_object_hash($arg);
                 }
             }
+
             return $arg;
         }, $args);
         $args = array_filter($args, fn ($arg) => ! is_null($arg) && $arg !== []);
